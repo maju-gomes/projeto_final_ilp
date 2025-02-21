@@ -12,11 +12,11 @@ fonte = pygame.font.Font("./assets/interface_do_usuario/pixelifsans.ttf", 40)
 fundo_ceu = pygame.image.load("./assets/objetos/background-day.png")
 fundo_ceu = pygame.transform.scale(fundo_ceu, (550, 650))
 
-base = pygame.image.load("./assets/objetos/base.png")
-base = pygame.transform.scale(base, (560, 112))
+base_rect= pygame.image.load("./assets/objetos/base.png")
+base_rect= pygame.transform.scale(base_rect, (560, 112))
 
-passaro1 = pygame.image.load("./assets/objetos/yellowbird-midflap.png")
-passaro1 = pygame.transform.scale(passaro1, (51, 36))
+passaro1_rect= pygame.image.load("./assets/objetos/yellowbird-midflap.png")
+passaro1_rect = pygame.transform.scale(passaro1_rect, (51, 36))
 
 # Variáveis do jogo
 passaro_y = 300  # Posição Y inicial do pássaro
@@ -38,27 +38,24 @@ while True:
 
     if not jogo_ativo:
         screen.blit(fundo_ceu, (0, 0))  
-        screen.blit(base, (0, 540))  
+        screen.blit(base_rect, (0, 540))  
         texto = fonte.render("Clique para Começar", False, (225, 225, 255))
         screen.blit(texto, (82,100))
-        screen.blit(passaro1, (225, 250))
+        screen.blit(passaro1_rect, (225, 250))
     else:
         passaro_y_velocidade += gravidade
         passaro_y += passaro_y_velocidade
 
-        if passaro_y >= 540:  # Atinge a base
-            passaro_y = 540
-            passaro_y_velocidade = 0
+        if passaro_y >= 540 - passaro1_rect.get_height():
             jogo_ativo = False  # Finaliza o jogo
-
             texto_perda = fonte.render("Você Perdeu", False, (255, 255, 255))
             screen.blit(texto_perda, (82, 100))
 
 
                 
         screen.blit(fundo_ceu, (0, 0))  
-        screen.blit(base, (0, 540))  
-        screen.blit(passaro1, (225, int(passaro_y)))  
+        screen.blit(base_rect, (0, 540))  
+        screen.blit(passaro1_rect,(225, int(passaro_y)))  
 
     pygame.display.update()
     clock.tick(60)
