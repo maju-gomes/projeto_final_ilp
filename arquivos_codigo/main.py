@@ -1,5 +1,6 @@
 import pygame
 from sys import exit
+import random
 
 pygame.init()
 screen = pygame.display.set_mode((550, 650))
@@ -37,6 +38,14 @@ passaro2_rect = pygame.transform.scale(passaro2_rect, (51, 36))
 passaro3_rect = pygame.image.load("./assets/objetos/yellowbird-downflap.png")
 passaro3_rect = pygame.transform.scale(passaro3_rect, (51, 36))
 
+cano_inferior_rect = pygame.image.load("assets/objetos/pipe-green.png")
+cano_inferior_rect = pygame.transform.scale(cano_inferior_rect, (78, 480))
+
+cano_superior_rect = pygame.image.load("assets/objetos/pipe-green.png")
+cano_superior_rect = pygame.transform.scale(cano_superior_rect, (78, 480))
+cano_superior_rect = pygame.transform.rotate(cano_superior_rect, 180)
+
+
 # Animação do pássaro
 animacao_passaro = [passaro1_rect, passaro2_rect, passaro3_rect]
 indice_animacao = 0
@@ -69,6 +78,11 @@ def jogo_rodando():
     contador_animacao += 1
 
     return False
+
+# Gerando canos
+def gerar_canos():
+    altura_cano_superior = random.randint(100, altura_maxima_cano)
+    al
 
 # Tela de derrota
 def tela_derrota():
