@@ -67,7 +67,7 @@ indice_animacao = 0
 contador_animacao = 0
 
 
-# FUNÇÇÕES
+# FUNÇÕES
 def jogo_rodando():
     global posicao_passaro_y, velocidade_passaro_y, indice_animacao, contador_animacao
 
@@ -107,29 +107,42 @@ def mover_bolas_fogo():
             bola["x"] -= 5
 
         elif bola["visivel"] == False:
-            bola['tempo_desaparecer'] = time.time()
+            bola["tempo_desaparecer"] = time.time()
 
-        if not bola['visivel']:
-            if time.time() - bola['tempo_desaparecer'] >= 2:  # Espera 2 segundos
-                bola['visivel'] = True  # Torna a bola visível novamente
-                bola['x'] = 550  # Coloca a bola novamente no início
-                bola['y'] = random.randint(50, 400)  # Nova posição aleatória
+        if not bola["visivel"]:
+            if time.time() - bola["tempo_desaparecer"] >= 2:  # Espera 2 segundos
+                bola["visivel"] = True  # Torna a bola visível novamente
+                bola["x"] = 550  # Coloca a bola novamente no início
+                bola["y"] = random.randint(50, 400)  # Nova posição aleatória
 
         # ANIMAÇÃO DA BOLA DE FOGO
         bola["contador_animacao"] += 1
         if bola["contador_animacao"] >= 5:
             bola["contador_animacao"] = 0
-            bola["indice_animacao"] = (indice_animacao + 1) % len(animacao_passaro)
+            bola["indice_animacao"] = (bola["indice_animacao"] + 1) % len(animacao_bola_fogo)
 
-        screen.blit(animacao_passaro[indice_animacao], (225, posicao_passaro_y))
+        screen.blit(animacao_bola_fogo[bola["indice_animacao"]], (bola["x"], bola["y"]))
 
         novas_bolas.append(bola)
 
     bola_fogo_posicoes = novas_bolas
 
+def verificar_colisao():
+    for bola in bola_fogo_posicoes:
+        if bola["visivel"]:
+            # Ajustando o cálculo da colisão
+            if (bola["x"] < 275 and bola["x"] + 112 > 225) and (bola["y"] < posicao_passaro_y + 36 and bola["y"] + 56 > posicao_passaro_y):
+                return True
+    return False
+
+def desenhar_bolas_fogo():
+    for bola in bola_fogo_posicoes:
+        if bola["visivel"]:
+            screen.blit(animacao_bola_fogo[bola["indice_animacao"]], (bola["x"], bola["y"]))
+
 def tela_derrota():
     screen.blit(fundo_ceu, (0, 0))  
-    screen.blit(base_rect, (0, 540))  
+    screen.blit(base_rect, (0, 540)) 
 
     texto_derrota1 = fonte.render("Você perdeu!", True, (255, 255, 255))
     texto_derrota2 = fonte.render("Clique para voltar", True, (255, 255, 255))
@@ -153,7 +166,6 @@ def tela_inicio():
 # Loop principal
 running = True
 while running:
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -170,22 +182,28 @@ while running:
     # Condicionais para desenhar as telas
     if jogo_situacao == situacoes["inicio"]:
         tela_inicio()
-        print("Tela de inicio")
 
     elif jogo_situacao == situacoes["jogando"]:
         if jogo_rodando():
             jogo_situacao = situacoes["derrota"]
-        print("Jogo rodando")
+        
+        if random.randint(1, 100) == 1:
+            bola_fogo_posicoes.append(gerar_bola_fogo())
+        
+        mover_bolas_fogo()
+        if verificar_colisao():  # Verifica colisão durante o jogo
+            jogo_situacao = situacoes["derrota"]
+            print("Colisao detectada]")
 
     elif jogo_situacao == situacoes["derrota"]:
         tela_derrota()
-        print("Tela de perda")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 # Reinicia o jogo
                 posicao_passaro_y = 250
                 velocidade_passaro_y = -1
+                bola_fogo_posicoes = []  # Reseta as bolas de fogo
                 jogo_situacao = situacoes["inicio"]  # Volta para o início
 
     pygame.display.update()
