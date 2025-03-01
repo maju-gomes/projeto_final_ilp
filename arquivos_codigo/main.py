@@ -1,6 +1,7 @@
 import pygame
 from sys import exit
 import random
+import time
 
 pygame.init()
 screen = pygame.display.set_mode((550, 650))
@@ -29,38 +30,50 @@ fundo_ceu = pygame.transform.scale(fundo_ceu, (550, 650))
 base_rect = pygame.image.load("./assets/objetos/base.png")
 base_rect = pygame.transform.scale(base_rect, (560, 112))
 
-passaro1_rect = pygame.image.load("./assets/objetos/yellowbird-upflap.png")
-passaro1_rect = pygame.transform.scale(passaro1_rect, (51, 36))
+passaro1 = pygame.image.load("./assets/objetos/yellowbird-upflap.png")
+passaro1 = pygame.transform.scale(passaro1, (51, 36))
 
-passaro2_rect = pygame.image.load("./assets/objetos/yellowbird-midflap.png")
-passaro2_rect = pygame.transform.scale(passaro2_rect, (51, 36))
+passaro2 = pygame.image.load("./assets/objetos/yellowbird-midflap.png")
+passaro2 = pygame.transform.scale(passaro2, (51, 36))
 
-passaro3_rect = pygame.image.load("./assets/objetos/yellowbird-downflap.png")
-passaro3_rect = pygame.transform.scale(passaro3_rect, (51, 36))
+passaro3 = pygame.image.load("./assets/objetos/yellowbird-downflap.png")
+passaro3 = pygame.transform.scale(passaro3, (51, 36))
 
-cano_inferior_rect = pygame.image.load("assets/objetos/pipe-green.png")
-cano_inferior_rect = pygame.transform.scale(cano_inferior_rect, (78, 480))
+bola_fogo1 = pygame.image.load("./assets/objetos/FB001.png")
+bola_fogo1 = pygame.transform.scale(bola_fogo1, (112, 56))
+bola_fogo1 = pygame.transform.rotate(bola_fogo1, 180)
 
-cano_superior_rect = pygame.image.load("assets/objetos/pipe-green.png")
-cano_superior_rect = pygame.transform.scale(cano_superior_rect, (78, 480))
-cano_superior_rect = pygame.transform.rotate(cano_superior_rect, 180)
+# BOLAS DE FOGO
+bola_fogo2 = pygame.image.load("./assets/objetos/FB002.png")
+bola_fogo2 = pygame.transform.scale(bola_fogo2, (112, 56))
+bola_fogo2 = pygame.transform.rotate(bola_fogo2, 180)
 
+bola_fogo3 = pygame.image.load("./assets/objetos/FB003.png")
+bola_fogo3 = pygame.transform.scale(bola_fogo3, (112, 56))
+bola_fogo3 = pygame.transform.rotate(bola_fogo3, 180)
 
-# Animação do pássaro
-animacao_passaro = [passaro1_rect, passaro2_rect, passaro3_rect]
+bola_fogo4 = pygame.image.load("./assets/objetos/FB004.png")
+bola_fogo4 = pygame.transform.scale(bola_fogo4, (112, 56))
+bola_fogo4 = pygame.transform.rotate(bola_fogo4, 180)
+
+bola_fogo5 = pygame.image.load("./assets/objetos/FB005.png")
+bola_fogo5 = pygame.transform.scale(bola_fogo5, (112, 56))
+bola_fogo5 = pygame.transform.rotate(bola_fogo5, 180)
+
+# PÁSSARO E BOLA DE FOGO
+animacao_passaro = [passaro1, passaro2, passaro3]
+animacao_bola_fogo = [bola_fogo1, bola_fogo2, bola_fogo3, bola_fogo4, bola_fogo5]
 indice_animacao = 0
 contador_animacao = 0
 
-# Funções
-# Jogo rodando
+
+# FUNÇÇÕES
 def jogo_rodando():
     global posicao_passaro_y, velocidade_passaro_y, indice_animacao, contador_animacao
 
-    # Gravidade e o movimento do pássaro
     posicao_passaro_y += velocidade_passaro_y
     velocidade_passaro_y += gravidade
 
-    # Limpa a tela desenhando o fundo e a base
     screen.blit(fundo_ceu, (0, 0))
     screen.blit(base_rect, (0, 540))
 
@@ -70,23 +83,51 @@ def jogo_rodando():
 
     if contador_animacao >= 5:  # A cada 5 quadros, troca a animação
         contador_animacao = 0
-        indice_animacao = (indice_animacao + 1) % len(animacao_passaro)  # Alterna entre as imagens do pássaro
+        indice_animacao = (indice_animacao + 1) % len(animacao_passaro) # Alterna entre as imagens do pássaro
 
-    # Desenha o pássaro com base no índice de animação
+    # Desenha o pássaro através do índice de animação
     screen.blit(animacao_passaro[indice_animacao], (225, posicao_passaro_y))
 
     contador_animacao += 1
 
     return False
 
-# Gerando canos
-def gerar_canos():
-    altura_cano_superior = random.randint(100, altura_maxima_cano)
-    al
+bola_fogo_posicoes = []
 
-# Tela de derrota
+def gerar_bola_fogo():
+    y = random.randint(50, 400)
+    return {"x": 550, "y": y, "visivel": True, "tempo_desaparecer": time.time(), "indice_animacao": 0, "contador_animacao": 0}
+
+def mover_bolas_fogo():
+    global bola_fogo_posicoes
+    novas_bolas = []
+
+    for bola in bola_fogo_posicoes:
+        if bola["visivel"]:
+            bola["x"] -= 5
+
+        elif bola["visivel"] == False:
+            bola['tempo_desaparecer'] = time.time()
+
+        if not bola['visivel']:
+            if time.time() - bola['tempo_desaparecer'] >= 2:  # Espera 2 segundos
+                bola['visivel'] = True  # Torna a bola visível novamente
+                bola['x'] = 550  # Coloca a bola novamente no início
+                bola['y'] = random.randint(50, 400)  # Nova posição aleatória
+
+        # ANIMAÇÃO DA BOLA DE FOGO
+        bola["contador_animacao"] += 1
+        if bola["contador_animacao"] >= 5:
+            bola["contador_animacao"] = 0
+            bola["indice_animacao"] = (indice_animacao + 1) % len(animacao_passaro)
+
+        screen.blit(animacao_passaro[indice_animacao], (225, posicao_passaro_y))
+
+        novas_bolas.append(bola)
+
+    bola_fogo_posicoes = novas_bolas
+
 def tela_derrota():
-    # Limpa a tela desenhando o fundo e a base corretamente
     screen.blit(fundo_ceu, (0, 0))  
     screen.blit(base_rect, (0, 540))  
 
@@ -100,14 +141,12 @@ def tela_derrota():
     
     screen.blit(animacao_passaro[indice_animacao], (225, posicao_passaro_y))
 
-# Tela de início
 def tela_inicio():
-    # Limpa a tela desenhando o fundo de céu e a base
-    screen.blit(fundo_ceu, (0, 0))  # Desenha o fundo de céu
-    screen.blit(base_rect, (0, 540))  # Desenha a base
+    screen.blit(fundo_ceu, (0, 0))
+    screen.blit(base_rect, (0, 540))
 
     texto_inicio = fonte.render("Clique para começar", True, (255, 255, 255))
-    screen.blit(texto_inicio, (75, 85))  # Exibe a mensagem de início
+    screen.blit(texto_inicio, (75, 85)) 
     
     screen.blit(animacao_passaro[indice_animacao], (225, posicao_passaro_y))
 
@@ -136,7 +175,6 @@ while running:
     elif jogo_situacao == situacoes["jogando"]:
         if jogo_rodando():
             jogo_situacao = situacoes["derrota"]
-        pygame.display.update()
         print("Jogo rodando")
 
     elif jogo_situacao == situacoes["derrota"]:
